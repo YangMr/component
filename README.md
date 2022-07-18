@@ -1044,9 +1044,184 @@ module.exports = {
 
 ### 二、table组件封装
 
-#### 2.1 table组件封装 - 初始table组件规范
+#### 2.1 table组件封装 - 初始table组件
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column prop="date" label="日期" width="180"></el-table-column>
+      <el-table-column prop="name" label="姓名" width="180"></el-table-column>
+      <el-table-column prop="address" label="地址"></el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Table',
+  data () {
+    return {
+      tableData: [{
+        date: '2016-05-02',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1518 弄'
+      }, {
+        date: '2016-05-04',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1517 弄'
+      }, {
+        date: '2016-05-01',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1519 弄'
+      }, {
+        date: '2016-05-03',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }]
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`views/home.vue`
+
+```vue
+<template>
+  <div class="home">
+    <yang-table></yang-table>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      flag: false
+    }
+  },
+  components: {
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+
+  }
+}
+</script>
+
+```
+
+**实现效果:**
+
+![image-20220718224722766](README.assets/image-20220718224722766.png)
 
 #### 2.2 table组件封装 - 定义数据配置表头
+
+`views/home.vue`
+
+```vue
+<template>
+  <div class="home">
+    <yang-table :column="column"></yang-table>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        { label: '日期', prop: 'date' },
+        { label: '姓名', prop: 'name' },
+        { label: '地址', prop: 'address' },
+        { label: '性别', prop: 'sex' }
+      ]
+    }
+  },
+  components: {
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+
+  }
+}
+</script>
+
+```
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column v-for="item in column" :key="item.prop" :prop="item.prop" :label="item.label"></el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Table',
+  props: {
+    column: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data () {
+    return {
+      tableData: [{
+        date: '2016-05-02',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1518 弄',
+        sex: '男'
+      }, {
+        date: '2016-05-04',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1517 弄',
+        sex: '女'
+      }, {
+        date: '2016-05-01',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1519 弄',
+        sex: '男'
+      }, {
+        date: '2016-05-03',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1516 弄',
+        sex: '女'
+      }]
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+**实现效果:**
+
+![image-20220718225258336](README.assets/image-20220718225258336.png)
 
 #### 2.3 table组件封装 - 复选框、索引、宽度属性配置
 
