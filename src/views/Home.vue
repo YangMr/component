@@ -1,6 +1,11 @@
 <template>
   <div class="home">
-    <yang-table :column="column" checkbox index></yang-table>
+    <yang-table :column="column" checkbox index>
+      <template v-slot:operation>
+        <el-button type="primary">编辑</el-button>
+        <yang-button type="danger">删除</yang-button>
+      </template>
+    </yang-table>
   </div>
 </template>
 
@@ -22,12 +27,14 @@ export default {
         // { label: '日期', prop: 'date', width: 500 },
         { label: '姓名', prop: 'name' },
         { label: '地址', prop: 'address' },
-        { label: '性别', prop: 'sex' }
+        { label: '性别', prop: 'sex' },
+        { label: '操作', prop: 'operation', type: 'slot', slot_name: 'operation' }
       ]
     }
   },
   components: {
-    yangTable: () => import('../components/table/index.vue')
+    yangTable: () => import('../components/table/index.vue'),
+    yangButton: () => import('../components/button/index.vue')
   },
   methods: {
 
