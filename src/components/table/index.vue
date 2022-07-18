@@ -3,9 +3,9 @@
     <el-table
       :data="tableData"
       style="width: 100%">
-      <el-table-column v-for="item in column" :key="item.prop" :prop="item.prop" :label="item.label"></el-table-column>
-<!--      <el-table-column prop="name" label="姓名" width="180"></el-table-column>-->
-<!--      <el-table-column prop="address" label="地址"></el-table-column>-->
+      <el-table-column v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <el-table-column v-for="item in column" :key="item.prop" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
     </el-table>
   </div>
 </template>
@@ -17,7 +17,9 @@ export default {
     column: {
       type: Array,
       default: () => []
-    }
+    },
+    checkbox: Boolean,
+    index: Boolean
   },
   data () {
     return {

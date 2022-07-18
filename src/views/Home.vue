@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <yang-table :column="column"></yang-table>
+    <yang-table :column="column" checkbox index></yang-table>
   </div>
 </template>
 
@@ -11,7 +11,7 @@ export default {
   data () {
     return {
       column: [
-        { label: '日期', prop: 'date' },
+        { label: '日期', prop: 'date', width: 500 },
         { label: '姓名', prop: 'name' },
         { label: '地址', prop: 'address' },
         { label: '性别', prop: 'sex' }
