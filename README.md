@@ -1567,27 +1567,290 @@ export default {
 
 #### 2.6 table组件封装 - 作用域插槽传输数据
 
+`views/home.vue`
+
+```vue
+<template>
+  <div class="home">
+    <yang-table :column="column" index checkbox>
+      <template v-slot:operation="slot">
+        <el-button type="primary" @click="handleEdit(slot.data)">编辑</el-button>
+        <yang-button type="danger" @click="handleDelete(slot.data)">删除</yang-button>
+      </template>
+    </yang-table>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        {
+          label: '标题',
+          prop: 'title',
+          type: 'function',
+          callback: (row) => {
+            if (row.id === 1) {
+              return `<a href="https://www.baidu.com">${row.title}</a>`
+            }
+            return `<span>${row.title}</span>`
+          }
+        },
+        { label: '日期', prop: 'date' },
+        { label: '姓名', prop: 'name' },
+        { label: '地址', prop: 'address' },
+        { label: '性别', prop: 'sex' },
+        { label: '操作', type: 'slot', slot_name: 'operation', prop: 'operation' }
+      ]
+    }
+  },
+  components: {
+    yangButton: () => import('../components/button/index.vue'),
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+    handleEdit (row) {
+      console.log(row)
+    },
+    handleDelete (row) {
+      console.log(row)
+    }
+  }
+}
+</script>
+
+```
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template v-for="(item,index) in column">
+        <el-table-column v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'yangTable',
+  props: {
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean
+  },
+  data () {
+    return {
+      tableData: [{
+        id: 1,
+        title: '这是一段标题1',
+        date: '2016-05-02',
+        name: '王小虎',
+        address: '上海市<b>普陀</b><div>123456</div>区金沙江路 1518 弄',
+        sex: '男'
+      }, {
+        id: 2,
+        title: '这是一段标题2',
+        date: '2016-05-04',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1517 弄',
+        sex: '女'
+      }, {
+        title: '这是一段标题3',
+        date: '2016-05-01',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1519 弄',
+        sex: '女'
+      }, {
+        title: '这是一段标题4',
+        date: '2016-05-03',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1516 弄',
+        sex: '男'
+      }]
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 2.7 table组件封装 - axios请求数据
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template v-for="(item,index) in column">
+        <el-table-column v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'yangTable',
+  props: {
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.getTableList()
+  },
+  methods: {
+    async getTableList () {
+      const response = await this.$axios({
+        url: '/name/',
+        method: 'GET'
+      })
+      this.tableData = response.data.data
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 #### 2.8 table组件封装 - 配置url请求地址
 
+`views/home.vue`
+
+
+
+`components/table/index.vue`
+
 #### 2.9 table组件封装 - 渲染第二个接口数据
+
+`views/home.vue`
+
+
+
+`components/table/index.vue`
 
 #### 2.10 table组件封装 - 接口传参
 
+`views/home.vue`
+
+
+
+`components/table/index.vue`
+
 #### 2.11 table组件封装 - 初始化请求和手动请求
+
+`views/home.vue`
+
+
+
+`components/table/index.vue`
 
 #### 2.12 table组件封装 - onload数据回调
 
+`views/home.vue`
+
+
+
+`components/table/index.vue`
+
 #### 2.13 table组件封装 - 格式化数据后渲染列表
+
+`views/home.vue`
+
+
+
+`components/table/index.vue`
 
 #### 2.14 table组件封装 - 获取checkbox数据
 
+`views/home.vue`
+
+
+
+`components/table/index.vue`
+
 #### 2.15 table组件封装 - sorttable排序
+
+`views/home.vue`
+
+
+
+`components/table/index.vue`
 
 #### 2.16 table组件封装 - 远程排序sortBy属性
 
+`views/home.vue`
+
+
+
+`components/table/index.vue`
+
 #### 2.17 table组件封装 - 动态组件
+
+`views/home.vue`
+
+
+
+`components/table/index.vue`
 
 #### 2.18 table组件封装 - 动态组件之读取文件
 
