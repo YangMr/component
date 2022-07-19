@@ -31,7 +31,27 @@ export default {
       default: () => []
     },
     checkbox: Boolean,
-    index: Boolean
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
   },
   data () {
     return {
@@ -39,15 +59,44 @@ export default {
     }
   },
   created () {
-    this.getTableList()
+    this.initRequest && this.getTableList()
   },
   methods: {
     async getTableList () {
-      const response = await this.$axios({
-        url: '/name/',
-        method: 'GET'
-      })
-      this.tableData = response.data.data
+      const url = this.url
+      if (!url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+
+        if (JSON.stringify(this.data) === '{}') {
+          requestData.data = this.data
+        }
+
+        if (JSON.stringify(this.params) === '{}') {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+
+        let data = response.data.data
+
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
     }
   }
 }

@@ -27,10 +27,10 @@ service.interceptors.response.use((response) => {
 
 // 统一了传参处理
 const request = (options) => {
-  if (options.method.toLowerCase() === 'get') {
-    options.params = options.data || {}
-  }
-  console.log(options)
+  // if (options.method.toLowerCase() === 'get') {
+  //   options.params = options.data || {}
+  // }
+  // console.log(options)
   return service(options)
 }
 
