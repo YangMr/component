@@ -2612,49 +2612,1639 @@ export default {
 
 
 
+#### 2.14 table组件封装 - 列表头渲染
+
+`views/home.vue`
+
+```vue
+<template>
+  <div class="home">
+    <yang-table init-request :format="formatData" @onLoad="onLoad"  :column="column" index checkbox :data="data_1" :params="params_1" url="/name/" method="post">
+      <template v-slot:operation="slot">
+        <el-button type="primary" @click="handleEdit(slot.data)">编辑</el-button>
+        <yang-button type="danger" @click="handleDelete(slot.data)">删除</yang-button>
+      </template>
+    </yang-table>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        { label: '姓名', prop: 'name' },
+        { label: '性别', prop: 'gender' },
+        { label: '创建时间', prop: 'create_date' },
+        { 
+          label: '操作', 
+          type: 'slot', 
+          slot_name: 'operation', 
+          prop: 'operation',
+          render_header : (h, {column, $index}) => {
+            return (
+            	<el-input value="111" />
+            )
+          }
+        }
+      ],
+      data_1: {
+        name: 'jack'
+      },
+      params_1: {
+        name: 'rose'
+      }
+    }
+  },
+  components: {
+    yangButton: () => import('../components/button/index.vue'),
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+    handleEdit (row) {
+      console.log(row)
+    },
+    handleDelete (row) {
+      console.log(row)
+    },
+    onLoad (data) {
+      console.log(data)
+    },
+    formatData (data) {
+      const tableData = data.data
+      tableData.forEach(item => {
+        item.gender = item.gender === '男' ? 1 : 0
+      })
+      return tableData
+    }
+  }
+}
+</script>
+
+```
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template v-for="(item,index) in column">
+        <el-table-column :render-header="item.render_header" v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column :render-header="item.render_header" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :render-header="item.render_header" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'yangTable',
+  props: {
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+#### 
+
 #### 2.14 table组件封装 - 获取checkbox数据
 
 `views/home.vue`
 
+```vue
+<template>
+  <div class="home">
+    <el-button @click="getCheckList">数据测试</el-button>	
+    <yang-table init-request :check-list.sync="check_list"  @onLoad="onLoad"  :column="column" index checkbox :data="data_1" :params="params_1" url="/name/" method="post">
+      <template v-slot:operation="slot">
+        <el-button type="primary" @click="handleEdit(slot.data)">编辑</el-button>
+        <yang-button type="danger" @click="handleDelete(slot.data)">删除</yang-button>
+      </template>
+    </yang-table>
+  </div>
+</template>
 
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        { label: '姓名', prop: 'name' },
+        { label: '性别', prop: 'gender' },
+        { label: '创建时间', prop: 'create_date' },
+        { label: '操作', type: 'slot', slot_name: 'operation', prop: 'operation' }
+      ],
+      data_1: {
+        name: 'jack'
+      },
+      params_1: {
+        name: 'rose'
+      },
+      check_list : []
+    }
+  },
+  watch : {
+    check_list : {
+      handler(value){
+        console.log(value)
+      }
+    }
+  },
+  components: {
+    yangButton: () => import('../components/button/index.vue'),
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+    getCheckList(){
+      console.log(this.check_list)
+    },
+    handleEdit (row) {
+      console.log(row)
+    },
+    handleDelete (row) {
+      console.log(row)
+    },
+    onLoad (data) {
+      console.log(data)
+    },
+    formatData (data) {
+      const tableData = data.data
+      tableData.forEach(item => {
+        item.gender = item.gender === '男' ? 1 : 0
+      })
+      return tableData
+    }
+  }
+}
+</script>
+
+```
 
 `components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+    >
+      <el-table-column v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template v-for="(item,index) in column">
+        <el-table-column v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'yangTable',
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 #### 2.15 table组件封装 - sorttable排序
 
 `views/home.vue`
 
+```vue
+<template>
+  <div class="home">
+    <el-button @click="getCheckList">数据测试</el-button>	
+    <yang-table init-request :check-list.sync="check_list"  @onLoad="onLoad"  :column="column" index checkbox :data="data_1" :params="params_1" url="/name/" method="post">
+      <template v-slot:operation="slot">
+        <el-button type="primary" @click="handleEdit(slot.data)">编辑</el-button>
+        <yang-button type="danger" @click="handleDelete(slot.data)">删除</yang-button>
+      </template>
+    </yang-table>
+  </div>
+</template>
 
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        { label: '姓名', prop: 'name', sort : true },
+        { label: '性别', prop: 'gender', sort : true },
+        { label: '创建时间', prop: 'create_date' },
+        { label: '操作', type: 'slot', slot_name: 'operation', prop: 'operation' }
+      ],
+      data_1: {
+        name: 'jack'
+      },
+      params_1: {
+        name: 'rose'
+      },
+      check_list : []
+    }
+  },
+  watch : {
+    check_list : {
+      handler(value){
+        console.log(value)
+      }
+    }
+  },
+  components: {
+    yangButton: () => import('../components/button/index.vue'),
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+    getCheckList(){
+      console.log(this.check_list)
+    },
+    handleEdit (row) {
+      console.log(row)
+    },
+    handleDelete (row) {
+      console.log(row)
+    },
+    onLoad (data) {
+      console.log(data)
+    },
+    formatData (data) {
+      const tableData = data.data
+      tableData.forEach(item => {
+        item.gender = item.gender === '男' ? 1 : 0
+      })
+      return tableData
+    }
+  }
+}
+</script>
+
+```
 
 `components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template  v-for="(item,index) in column">
+        <el-table-column :sortable="item.sort" v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column  :sortable="item.sort" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :sortable="item.sort" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'yangTable',
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 #### 2.16 table组件封装 - 远程排序sortBy属性
 
 `views/home.vue`
 
+```vue
+<template>
+  <div class="home">
+    <el-button @click="getCheckList">数据测试</el-button>	
+    <yang-table init-request :check-list.sync="check_list"  @onLoad="onLoad"  :column="column" index checkbox :data="data_1" :params="params_1" url="/name/" method="post">
+      <template v-slot:operation="slot">
+        <el-button type="primary" @click="handleEdit(slot.data)">编辑</el-button>
+        <yang-button type="danger" @click="handleDelete(slot.data)">删除</yang-button>
+      </template>
+    </yang-table>
+  </div>
+</template>
 
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        { label: '姓名', prop: 'name', sort : "custorm", sort_by : "aaa" },
+        { label: '性别', prop: 'gender', sort :  "custorm"  },
+        { label: '创建时间', prop: 'create_date' },
+        { label: '操作', type: 'slot', slot_name: 'operation', prop: 'operation' }
+      ],
+      data_1: {
+        name: 'jack'
+      },
+      params_1: {
+        name: 'rose'
+      },
+      check_list : []
+    }
+  },
+  watch : {
+    check_list : {
+      handler(value){
+        console.log(value)
+      }
+    }
+  },
+  components: {
+    yangButton: () => import('../components/button/index.vue'),
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+    getCheckList(){
+      console.log(this.check_list)
+    },
+    handleEdit (row) {
+      console.log(row)
+    },
+    handleDelete (row) {
+      console.log(row)
+    },
+    onLoad (data) {
+      console.log(data)
+    },
+    formatData (data) {
+      const tableData = data.data
+      tableData.forEach(item => {
+        item.gender = item.gender === '男' ? 1 : 0
+      })
+      return tableData
+    }
+  }
+}
+</script>
+
+```
 
 `components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+      @sort-change="sortChange"   
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template  v-for="(item,index) in column">
+        <el-table-column :sort-by="item.sort_by" :sortable="item.sort" v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'yangTable',
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 远程排序
+    sortChange({column, prop, order}){
+      console.log(column)
+      const sort_by = column.sortBy
+      console.log(sort_by, order)
+    },
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 #### 2.17 table组件封装 - 动态组件
 
+1. 在components文件夹内创建control文件夹
+2. 在control文件夹内创建function文件夹
+3. 在function文件夹内创建index.vue文件
+4. 在control文件夹内创建text文件夹
+5. 在text文件夹内创建index.vue文件
+6. 在control文件夹内创建image文件夹
+7. 在image文件夹内创建index.vue文件
+
+`components/control/function/index.vue`
+
+```vue
+<template>
+	<div>function</div>
+</template>
+```
+
+`components/control/text/index.vue`
+
+```vue
+<template>
+	<div>text</div>
+</template>
+```
+
+`components/control/image/index.vue`
+
+```vue
+<template>
+	<div>image</div>
+</template>
+```
+
+
+
+
+
 `views/home.vue`
 
+```vue
+<template>
+  <div class="home">
+    <el-button @click="getCheckList">数据测试</el-button>	
+    <yang-table init-request :check-list.sync="check_list"  @onLoad="onLoad"  :column="column" index checkbox :data="data_1" :params="params_1" url="/name/" method="post">
+      <template v-slot:operation="slot">
+        <el-button type="primary" @click="handleEdit(slot.data)">编辑</el-button>
+        <yang-button type="danger" @click="handleDelete(slot.data)">删除</yang-button>
+      </template>
+    </yang-table>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      column: [
+        { label: '姓名', prop: 'name', sort : "custorm", sort_by : "aaa" },
+        { 
+          label: '性别', 
+          prop: 'gender', 
+          sort :  "custom",
+          type : 'function',
+          callback : ()=>{
+            return 11
+          }
+        },
+        { label: '创建时间', prop: 'create_date' },
+        { label: '操作', type: 'slot', slot_name: 'operation', prop: 'operation' }
+      ],
+      data_1: {
+        name: 'jack'
+      },
+      params_1: {
+        name: 'rose'
+      },
+      check_list : []
+    }
+  },
+  watch : {
+    check_list : {
+      handler(value){
+        console.log(value)
+      }
+    }
+  },
+  components: {
+    yangButton: () => import('../components/button/index.vue'),
+    yangTable: () => import('../components/table/index.vue')
+  },
+  methods: {
+    getCheckList(){
+      console.log(this.check_list)
+    },
+    handleEdit (row) {
+      console.log(row)
+    },
+    handleDelete (row) {
+      console.log(row)
+    },
+    onLoad (data) {
+      console.log(data)
+    },
+    formatData (data) {
+      const tableData = data.data
+      tableData.forEach(item => {
+        item.gender = item.gender === '男' ? 1 : 0
+      })
+      return tableData
+    }
+  }
+}
+</script>
+```
 
 
-`components/table/index.vue`
 
 #### 2.18 table组件封装 - 动态组件之读取文件
 
+自动化的规则, 通过type属性自动读取目录组件
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+      @sort-change="sortChange"   
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template  v-for="(item,index) in column">
+        <el-table-column :sort-by="item.sort_by" :sortable="item.sort" v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+export default {
+  name: 'yangTable',
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 远程排序
+    sortChange({column, prop, order}){
+      console.log(column)
+      const sort_by = column.sortBy
+      console.log(sort_by, order)
+    },
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+
+
 #### 2.19 table组件封装 - 动态组件之映射组件
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+      @sort-change="sortChange"   
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template  v-for="(item,index) in column">
+        <el-table-column :sort-by="item.sort_by" :sortable="item.sort" v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+files.keys().forEach(item=>{
+  const key = item.split("/")
+  const name = key[1]
+  const component = files(item).default
+  console.log(component)
+})  
+export default {
+  name: 'yangTable',
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 远程排序
+    sortChange({column, prop, order}){
+      console.log(column)
+      const sort_by = column.sortBy
+      console.log(sort_by, order)
+    },
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+
 
 #### 2.20 table组件封装 -动态组件之组件生成
 
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+      @sort-change="sortChange"   
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template  v-for="(item,index) in column">
+        <el-table-column :sort-by="item.sort_by" :sortable="item.sort" v-if="item.type === 'function'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <div v-html="item.callback && item.callback(scope.row,index)"></div>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+const mpodules = {}
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+files.keys().forEach(item=>{
+  const key = item.split("/")
+  const name = key[1]
+  const component = files(item).default
+  console.log(component)
+  
+  // 组件集成
+  modules[`com-${name}`] = component
+})  
+export default {
+  name: 'yangTable',
+  components: {
+    // 'com-function' : () => import("../control/function"),
+    // 'com-image' : () => import("../control/image"),
+    ...modules
+  },
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 远程排序
+    sortChange({column, prop, order}){
+      console.log(column)
+      const sort_by = column.sortBy
+      console.log(sort_by, order)
+    },
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 2.21 table组件封装 - 动态组件之文本渲染
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+      @sort-change="sortChange"   
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <template  v-for="(item,index) in column">
+        <el-table-column :sort-by="item.sort_by" :sortable="item.sort"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <component :data="scope.row" :config="item" :prop="item.prop" :is="!item.type ? 'com-text' : `com-${item.type}`">
+            <!-- <div v-html="item.callback && item.callback(scope.row,index)"></div> -->
+          </template>
+        </el-table-column>
+       <!-- <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-if="item.type === 'slot'"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot :name="item.slot_name" :data="scope.row"></slot>
+          </template>
+        </el-table-column>
+        <el-table-column :sort-by="item.sort_by"  :sortable="item.sort" v-else :key="index" :prop="item.prop" :label="item.label" :width="item.width"></el-table-column>
+			-->
+      </template>
+    </el-table>
+  </div>
+</template>
+
+<script>
+const mpodules = {}
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+files.keys().forEach(item=>{
+  const key = item.split("/")
+  const name = key[1]
+  const component = files(item).default
+  console.log(component)
+  
+  // 组件集成
+  modules[`com-${name}`] = component
+})  
+export default {
+  name: 'yangTable',
+  components: {
+    // 'com-function' : () => import("../control/function"),
+    // 'com-image' : () => import("../control/image"),
+    ...modules
+  },
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 远程排序
+    sortChange({column, prop, order}){
+      console.log(column)
+      const sort_by = column.sortBy
+      console.log(sort_by, order)
+    },
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+#### ![image-20220720095603390](README.assets/image-20220720095603390.png)
 
 #### 2.22 table组件封装 - 动态组件之function类型渲染
 
+![image-20220720095810458](README.assets/image-20220720095810458.png)
+
 #### 2.23 table组件封装 - 完结
+
+`components/table/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+    	@selection-change="handleSelectionChange" 
+      @sort-change="sortChange"   
+    >
+      <el-table-column  v-if="index" label="序号" type="index" width="55"></el-table-column>
+      <el-table-column v-if="checkbox" type="selection" width="55"></el-table-column>
+      <el-table-column v-for="(item,index) in column" :sort-by="item.sort_by" :sortable="item.sort"  :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+          <template v-slot="scope">
+            <slot v-if="item.type === 'slot'" :name="item.slot_name" :data="scope.row"></slot>
+            <component v-else :data="scope.row" :config="item" :prop="item.prop" :is="!item.type ? 'com-text' : `com-${item.type}`">
+          </template>
+       </el-table-column>
+       
+    </el-table>
+  </div>
+</template>
+
+<script>
+const mpodules = {}
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+const files = require.context("../control", true, /\index.vue$/)
+console.log(files)
+files.keys().forEach(item=>{
+  const key = item.split("/")
+  const name = key[1]
+  const component = files(item).default
+  console.log(component)
+  
+  // 组件集成
+  modules[`com-${name}`] = component
+})  
+export default {
+  name: 'yangTable',
+  components: {
+    // 'com-function' : () => import("../control/function"),
+    // 'com-image' : () => import("../control/image"),
+    ...modules
+  },
+  props: {
+    checkList : {
+      type : Array,
+      default : () => []
+    },
+    column: {
+      type: Array,
+      default: () => []
+    },
+    checkbox: Boolean,
+    index: Boolean,
+    url: {
+      type: String,
+      default: '',
+      required: true
+    },
+    method: {
+      type: String,
+      default: 'GET'
+    },
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    params: {
+      type: Object,
+      default: () => {}
+    },
+    initRequest: Boolean,
+    onLoad: Boolean,
+    format: Function
+  },
+  data () {
+    return {
+      tableData: []
+    }
+  },
+  created () {
+    this.initRequest && this.getTableList()
+  },
+  methods: {
+    // 远程排序
+    sortChange({column, prop, order}){
+      console.log(column)
+      const sort_by = column.sortBy
+      console.log(sort_by, order)
+    },
+    // 复选框回调
+    handleSelectionChange(val){
+      console.log(val)
+      this.$emit("update:checkList", val)
+    },
+    async getTableList () {
+      if (!this.url) {
+        throw new Error('url is required')
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+        if (this.data) {
+          requestData.data = this.data
+        }
+
+        if (this.params) {
+          requestData.params = this.params
+        }
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.tableData = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    handleRequest () {
+      this.getTableList()
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 
 
