@@ -1,6 +1,6 @@
 <template>
   <div>
-    <yang-form :item="formItem" :field="formField"></yang-form>
+    <yang-form :item="formItem" :field="formField" :button="formButton"></yang-form>
   </div>
 </template>
 
@@ -9,17 +9,31 @@ export default {
   name: 'Form',
   data () {
     return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
       formItem: [
         {
-          label: '姓名',
+          label: '手机号',
           type: 'input',
-          prop: 'name',
+          valueType: 'phone',
+          prop: 'phone',
           required: true
         },
         {
           label: '密码',
           type: 'input',
+          valueType: 'password',
           prop: 'password',
+          required: true
+        },
+        {
+          label: '邮箱',
+          type: 'input',
+          valueType: 'email',
+          prop: 'email',
           required: true
         },
         {
@@ -30,13 +44,18 @@ export default {
         }
       ],
       formField: {
-        name: 'jack',
-        password: '123456'
+        phone: '',
+        password: '',
+        age: '',
+        email: ''
       }
     }
   },
   components: {
     yangForm: () => import('../components/form/index')
+  },
+  methods: {
+
   }
 }
 </script>
