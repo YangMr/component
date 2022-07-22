@@ -5,14 +5,18 @@
 // 导入axios
 import axios from 'axios'
 
+// 多个公共接口地址 多个代理 解决
+// 请求多个公共接口
+
 // 创建axios实例对象
 const service = axios.create({
-  baseURL: process.env.VUE_APP_API,
+  // baseURL: process.env.VUE_APP_API,
   timeout: 5000
 })
 
 // 请求拦截器
 service.interceptors.request.use((config) => {
+  console.log(config)
   return config
 }, (error) => {
   return Promise.reject(error)
@@ -31,6 +35,12 @@ const request = (options) => {
   //   options.params = options.data || {}
   // }
   // console.log(options)
+
+  // 解决请求多个代理名称问题
+  console.log(options.basePath)
+  if (options.basePath) {
+    service.defaults.baseURL = options.basePath
+  }
   return service(options)
 }
 

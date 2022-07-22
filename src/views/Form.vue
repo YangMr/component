@@ -27,24 +27,41 @@ export default {
           type: 'select',
           prop: 'class_room',
           required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
           options: [
             {
-              label: '一教',
-              value: 1
+              a: '一教',
+              b: 1
             },
             {
-              label: '二教',
-              value: 2
+              a: '二教',
+              b: 2
             },
             {
-              label: '三教',
-              value: 3
+              a: '三教',
+              b: 3
             },
             {
-              label: '四教',
-              value: 4
+              a: '四教',
+              b: 4
             }
           ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
         }
       ],
       formField: {

@@ -6884,9 +6884,598 @@ export default {
 
 #### 4.5 select组件集成 - 接口异步数据1
 
+`views/Form.vue`
+
+```vue
+<template>
+  <div>
+    <yang-form :item="formItem" :field="formField" :button="formButton" :before-submit="handleBeforeSubmit"></yang-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Form',
+  data () {
+    return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
+      formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          options: [
+            {
+              label: '一教',
+              value: 1
+            },
+            {
+              label: '二教',
+              value: 2
+            },
+            {
+              label: '三教',
+              value: 3
+            },
+            {
+              label: '四教',
+              value: 4
+            }
+          ]
+        },
+        {
+          label: '异步教室',
+          type: 'select',
+          prop: 'class_room1',
+          required: true,
+          url: '/api/classname/',
+          method: 'get',
+          initRequest: true
+        }
+      ],
+      formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: ''
+      }
+    }
+  },
+  components: {
+    yangForm: () => import('../components/form/index')
+  },
+  methods: {
+    handleBeforeSubmit () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject()
+        }, 2000)
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+`components/control/select/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-select v-model="val" @change="handleChangeEvent">
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+    </el-select>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SelectComponent',
+  props: {
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    config: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        this.val = newValue
+      },
+      immediate: true
+    },
+    config: {
+      handler (val) {
+        this.initOptions()
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  data () {
+    return {
+      val: '',
+      options: []
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      console.log(value)
+      this.$emit('update:value', value)
+    },
+    initOptions () {
+      const initRequest = this.config.initRequest
+      const url = this.config.url
+      const method = this.config.method
+      const options = this.config.options
+
+      if (url) {
+        this.fetchOptions(url, method)
+      }
+
+      if (options && Array.isArray(options) && options.length > 0) {
+        this.options = options
+        console.log(options)
+      }
+    },
+    fetchOptions (url, method) {
+
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 4.6 select组件集成 - 接口异步数据2
 
+`views/Form.vue`
+
+```vue
+<template>
+  <div>
+    <yang-form :item="formItem" :field="formField" :button="formButton" :before-submit="handleBeforeSubmit"></yang-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Form',
+  data () {
+    return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
+      formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          options: [
+            {
+              label: '一教',
+              value: 1
+            },
+            {
+              label: '二教',
+              value: 2
+            },
+            {
+              label: '三教',
+              value: 3
+            },
+            {
+              label: '四教',
+              value: 4
+            }
+          ]
+        },
+        {
+          label: '异步教室',
+          type: 'select',
+          prop: 'class_room1',
+          required: true,
+          url: '/classroom/',
+          method: 'get',
+          initRequest: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          }
+        }
+      ],
+      formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: ''
+      }
+    }
+  },
+  components: {
+    yangForm: () => import('../components/form/index')
+  },
+  methods: {
+    handleBeforeSubmit () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject()
+        }, 2000)
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`components/control/select/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-select v-model="val" @change="handleChangeEvent">
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+    </el-select>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SelectComponent',
+  props: {
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    config: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        this.val = newValue
+      },
+      immediate: true
+    },
+    config: {
+      handler (val) {
+        this.initOptions()
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  data () {
+    return {
+      val: '',
+      options: []
+    }
+  },
+  computed: {
+    url () {
+      return this.config?.url
+    },
+    initRequest () {
+      return this.config?.initRequest
+    },
+    methods () {
+      return this.config?.methods || 'get'
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      console.log(value)
+      this.$emit('update:value', value)
+    },
+    initOptions () {
+      if (this.url) {
+        this.fetchOptions()
+        return false
+      }
+      const options = this.config.options
+      if (options && Array.isArray(options) && options.length > 0) {
+        this.options = options
+        console.log(options)
+      }
+    },
+    async fetchOptions () {
+      if (!this.initRequest) {
+        return false
+      }
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+
+        const response = await this.$axios(requestData)
+        console.log(response.data.data)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.options = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 4.7 select组件集成 - 远程搜索
+
+`views/Fome.vue`
+
+```vue
+<template>
+  <div>
+    <yang-form :item="formItem" :field="formField" :button="formButton" :before-submit="handleBeforeSubmit"></yang-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Form',
+  data () {
+    return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
+      formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          options: [
+            {
+              label: '一教',
+              value: 1
+            },
+            {
+              label: '二教',
+              value: 2
+            },
+            {
+              label: '三教',
+              value: 3
+            },
+            {
+              label: '四教',
+              value: 4
+            }
+          ]
+        },
+        {
+          label: '异步教室',
+          type: 'select',
+          prop: 'class_room1',
+          required: true,
+          url: '/classroom/',
+          method: 'get',
+          initRequest: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          fetchSearch: true
+        }
+      ],
+      formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: ''
+      }
+    }
+  },
+  components: {
+    yangForm: () => import('../components/form/index')
+  },
+  methods: {
+    handleBeforeSubmit () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject()
+        }, 2000)
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`components/control/select/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-select v-model="val" @change="handleChangeEvent" filterable remote :remote-method="keywordRequest">
+      <el-option   v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+    </el-select>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SelectComponent',
+  props: {
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    config: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        this.val = newValue
+      },
+      immediate: true
+    },
+    config: {
+      handler (val) {
+        this.initOptions()
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  data () {
+    return {
+      val: '',
+      options: []
+    }
+  },
+  computed: {
+    url () {
+      return this.config?.url
+    },
+    initRequest () {
+      return this.config?.initRequest
+    },
+    methods () {
+      return this.config?.methods || 'get'
+    },
+    fetchSearch () {
+      return this.config?.fetchSearch
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      console.log(value)
+      this.$emit('update:value', value)
+    },
+    initOptions () {
+      if (this.url) {
+        this.fetchOptions()
+        return false
+      }
+      const options = this.config.options
+      if (options && Array.isArray(options) && options.length > 0) {
+        this.options = options
+        console.log(options)
+      }
+    },
+    fetchOptions () {
+      if (!this.initRequest) {
+        return false
+      }
+
+      this.getOptions()
+    },
+    keywordRequest (query) {
+      if (query) {
+        this.getOptions()
+      }
+    },
+    async getOptions () {
+      try {
+        const requestData = {
+          url: this.url,
+          method: this.method
+        }
+
+        const response = await this.$axios(requestData)
+        let data = response.data.data
+        if (this.format && typeof this.format === 'function') {
+          data = this.format(response.data)
+        }
+        this.options = data
+
+        this.onLoad && this.$emit('onLoad', response.data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 #### 4.8 select组件集成 - 远程搜索定义字段名称
 

@@ -54,6 +54,9 @@ export default {
     },
     initRequest () {
       return this.config?.initRequest
+    },
+    basePath () {
+      return this.config?.basePath
     }
   },
   methods: {
@@ -86,10 +89,10 @@ export default {
       if (!this.initRequest) {
         return false
       }
-
       const response = await this.$axios({
         url: this.url,
-        method: this.method
+        method: this.method,
+        basePath: this.basePath
       })
       const data = response.data.data
       this.options = data
