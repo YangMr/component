@@ -43,6 +43,9 @@ const createMessage = (data) => {
     case 'input' :
       msg = '请输入'
       break
+    case 'checkbox' :
+      msg = '请选择'
+      break
     case 'select' :
       msg = '请选择'
       break

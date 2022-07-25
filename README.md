@@ -7493,15 +7493,545 @@ export default {
 
 #### 5.1 checkbox组件封装 - 集成复选框组件
 
+1. 将`select组件`复制一份,修改为`checkbox组件`
+2. 在`Form.vue`配置`checkbox数据项`
+
+```javascript
+ formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
+        }
+      ],
+      formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: '',
+        food: []
+      }
+```
+
+3. 在`checkbox组件`内渲染复选框
+
+```vue
+<template>
+  <div>
+    <el-checkbox-group v-model="val">
+      <el-checkbox label="复选框 A"></el-checkbox>
+      <el-checkbox label="复选框 B"></el-checkbox>
+      <el-checkbox label="复选框 C"></el-checkbox>
+      <el-checkbox label="禁用"></el-checkbox>
+      <el-checkbox label="选中且禁用"></el-checkbox>
+    </el-checkbox-group>
+  </div>
+</template>
+```
+
+
+
 #### 5.2 checkbox组件封装 - 初始化数据
+
+`Form.vue`
+
+```javascript
+{
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '苹果',
+              b: 1
+            },
+            {
+              a: '杨梅',
+              b: 2
+            },
+            {
+              a: '芒果',
+              b: 3
+            }
+          ]
+        },
+```
+
+`control/checkbox/index.vue`
+
+```vue
+	<template>
+  <div>
+    <el-checkbox-group v-model="val">
+      <el-checkbox v-for="item in options" :key="item[props.value]" :label="item[props.value]">{{item[props.label]}}</el-checkbox>
+    </el-checkbox-group>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SelectComponent',
+  props: {
+    value: {
+      type: [String, Number, Array],
+      default: ''
+    },
+```
+
+
 
 #### 5.3 checkbox组件封装 - 解决bug
 
+`components/form/createRules.js`
+
+```javascript
+const createMessage = (data) => {
+  let msg = ''
+  switch (data.type) {
+    case 'input' :
+      msg = '请输入'
+      break
+    case 'checkbox' :
+      msg = '请选择'
+      break
+    case 'select' :
+      msg = '请选择'
+      break
+  }
+  return `${msg}${data.label}`
+}
+```
+
+`control/checkbox/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-checkbox-group v-model="val" @change="handleChangeEvent">
+      <el-checkbox v-for="item in options" :key="item[props.value]" :label="item[props.value]">{{item[props.label]}}</el-checkbox>
+    </el-checkbox-group>
+  </div>
+</template>
+```
+
 #### 5.4 checkbox组件封装 - 抽离公共对象
+
+`components/control/basis.js`
+
+```javascript
+/**
+ * @author YangLing
+ * @date 2022/7/25 09:47
+ */
+
+export const props = {
+  value: {
+    type: [String, Number, Array],
+    default: ''
+  },
+  config: {
+    type: Object,
+    default: () => ({})
+  }
+}
+
+```
+
+`control/checkbox/index.vue`
+
+```javascript
+import { props } from '../basis'
+export default {
+  name: 'CheckboxComponent',
+  props: {
+    ...props
+  },
+```
+
+
 
 #### 5.5 checkbox组件封装 - 公共对象的混合
 
+`components/control/basis.js`
+
+```javascript
+/**
+ * @author YangLing
+ * @date 2022/7/25 09:47
+ */
+
+export const props = {
+  value: {
+    type: [String, Number, Array],
+    default: ''
+  },
+  config: {
+    type: Object,
+    default: () => ({})
+  }
+}
+
+export const mixin = {
+  data () {
+    return {
+      options: [],
+      props: {
+        label: 'label',
+        value: 'value'
+      }
+    }
+  },
+  computed: {
+    url () {
+      return this.config?.url
+    },
+    method () {
+      return this.config?.method || 'GET'
+    },
+    initRequest () {
+      return this.config?.initRequest
+    }
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        this.val = newValue
+      },
+      immediate: true
+    },
+    config: {
+      handler (val) {
+        this.initOptions()
+        this.initProps()
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      this.$emit('update:value', value)
+    },
+    initOptions () {
+      if (this.url) {
+        this.getOption()
+        return false
+      }
+
+      const options = this.config.options
+      if (options && Array.isArray(options) && options.length > 0) {
+        this.options = options
+      }
+    },
+    initProps () {
+      const props = this.config.props
+      const keys = Object.keys(this.props)
+      if (props && Object.prototype.toString.call(props) === '[object Object]') {
+        for (const key in props) {
+          if (keys.includes(key)) {
+            this.props[key] = props[key]
+          }
+        }
+      }
+    },
+    async getOption () {
+      if (!this.initRequest) {
+        return false
+      }
+
+      const response = await this.$axios({
+        url: this.url,
+        method: this.method
+      })
+      const data = response.data.data
+      this.options = data
+      console.log(this.options)
+    }
+  }
+}
+
+```
+
+`control/checkbox/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-checkbox-group v-model="val" @change="handleChangeEvent">
+      <el-checkbox v-for="item in options" :key="item[props.value]" :label="item[props.value]">{{item[props.label]}}</el-checkbox>
+    </el-checkbox-group>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'CheckboxComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`control/select/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-select v-model="val" @change="handleChangeEvent" >
+      <el-option  v-for="item in options" :key="item[props.value]" :label="item[props.label]" :value="item[props.value]"></el-option>
+    </el-select>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'SelectComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  computed: {
+  },
+  methods: {
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 5.6 checkbox组件封装 - 完结
+
+`Form.vue`
+
+```javascript
+ formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '交通工具',
+          type: 'radio',
+          prop: 'car',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '汽车',
+              b: 1
+            },
+            {
+              a: '高铁',
+              b: 2
+            },
+            {
+              a: '飞机',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '苹果',
+              b: 1
+            },
+            {
+              a: '杨梅',
+              b: 2
+            },
+            {
+              a: '芒果',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
+        }
+      ],
+      formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: '',
+        food: [],
+        car: 1
+      }
+```
+
+`components/control/radio/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-radio-group v-model="val" @change="handleChangeEvent">
+      <el-radio v-for="item in options" :key="item[props.value]" :label="item[props.value]">{{item[props.label]}}</el-radio>
+    </el-radio-group>
+  </div>
+</template>
+```
 
 
 
@@ -7509,13 +8039,418 @@ export default {
 
 #### 6.1 date日期组件封装 - type日期类型配置
 
+`Form.vue`
+
+```javascript
+formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          prop: 'createDate'
+          // required: true,
+        },
+        {
+          label: '交通工具',
+          type: 'radio',
+          prop: 'car',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '汽车',
+              b: 1
+            },
+            {
+              a: '高铁',
+              b: 2
+            },
+            {
+              a: '飞机',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '苹果',
+              b: 1
+            },
+            {
+              a: '杨梅',
+              b: 2
+            },
+            {
+              a: '芒果',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          // required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          // initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
+        }
+      ],
+      formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: '',
+        food: [],
+        car: 1,
+        createDate: ''
+      }
+```
+
+`components/control/date/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-date-picker
+      v-model="val"
+      :type="config.model || 'date'"
+      @change="handleChangeEvent"
+      placeholder="选择日期时间">
+    </el-date-picker>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'RadioComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`control/basis.js`
+
+```javascript
+ value: {
+    type: [String, Number, Array, Date],
+    default: ''
+  },
+```
+
+
+
 #### 6.2 date日期组件封装 - placeholder占位符配置
+
+`Form.vue`
+
+```javascript
+{
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          // placeholder: '请选择创建日期',
+          startPlaceholder: '请选择开始创建日期',
+          endPlaceholder: '请选择结束创建日期',
+          rangeSeparator: '至',
+          prop: 'createDate'
+          // required: true,
+        },
+```
+
+`components/control/date/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-date-picker
+      v-model="val"
+      :type="config.model || 'date'"
+      :placeholder="config.placeholder || '请选择日期'"
+      :range-separator="config.rangeSeparator || '-'"
+      :start-placeholder="config.startPlaceholder || '开始日期'"
+      :end-placeholder="config.endPlaceholder || '结束日期'"
+      @change="handleChangeEvent"
+      >
+    </el-date-picker>
+  </div>
+</template>
+```
+
+
 
 #### 6.3 date日期组件封装 - picker-options禁用日期
 
+`components/control/date/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-date-picker
+      v-model="val"
+      :type="config.model || 'date'"
+      :placeholder="config.placeholder || '请选择日期'"
+      :range-separator="config.rangeSeparator || '-'"
+      :start-placeholder="config.startPlaceholder || '开始日期'"
+      :end-placeholder="config.endPlaceholder || '结束日期'"
+      :picker-options="{
+        disabledDate : (time)=>{
+          // return true
+          return time.getTime() < new Date() - 8.64e7
+        }
+      }"
+      @change="handleChangeEvent"
+      >
+    </el-date-picker>
+  </div>
+</template>
+```
+
+
+
 #### 6.4 date日期组件封装 - 配置禁用日期
 
+`Form.vue`
+
+```javascript
+{
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          // disabledDate: true,
+          disabledToDay: true,
+          // placeholder: '请选择创建日期',
+          startPlaceholder: '请选择开始创建日期',
+          endPlaceholder: '请选择结束创建日期',
+          rangeSeparator: '至',
+          prop: 'createDate'
+          // required: true,
+        },
+```
+
+`components/control/date/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-date-picker
+      v-model="val"
+      :type="config.model || 'date'"
+      :placeholder="config.placeholder || '请选择日期'"
+      :range-separator="config.rangeSeparator || '-'"
+      :start-placeholder="config.startPlaceholder || '开始日期'"
+      :end-placeholder="config.endPlaceholder || '结束日期'"
+      :picker-options="pickerOptions()"
+      @change="handleChangeEvent"
+      >
+    </el-date-picker>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'RadioComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+    pickerOptions () {
+      const disabledDate = this.config.disabledDate
+      const disabledToDay = this.config.disabledToDay
+      return {
+        disabledDate: (time) => {
+          if (disabledDate) {
+            // return true
+            return time.getTime() < new Date() - 8.64e7
+          } else if (disabledToDay) {
+            return time.getTime() < new Date()
+          } else {
+            return false
+          }
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 6.5 date日期组件封装 - 自定义禁用日期规则
+
+`Form.vue`
+
+```javascript
+{
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          // disabledDate: true,
+          disabledDateRules: (time) => {
+            return time.getTime() > new Date()
+          },
+          disabledToDay: true,
+          // placeholder: '请选择创建日期',
+          startPlaceholder: '请选择开始创建日期',
+          endPlaceholder: '请选择结束创建日期',
+          rangeSeparator: '至',
+          prop: 'createDate'
+          // required: true,
+        },
+```
+
+`components/control/date/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-date-picker
+      v-model="val"
+      :type="config.model || 'date'"
+      :placeholder="config.placeholder || '请选择日期'"
+      :range-separator="config.rangeSeparator || '-'"
+      :start-placeholder="config.startPlaceholder || '开始日期'"
+      :end-placeholder="config.endPlaceholder || '结束日期'"
+      :picker-options="pickerOptions()"
+      @change="handleChangeEvent"
+      >
+    </el-date-picker>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'RadioComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+    pickerOptions () {
+      const disabledDate = this.config.disabledDate
+      const disabledToDay = this.config.disabledToDay
+      const disabledDateRules = this.config.disabledDateRules && Object.prototype.toString.call(this.config.disabledDateRules) === '[object Function]'
+      return {
+        disabledDate: (time) => {
+          if (disabledDateRules) {
+            return this.config.disabledDateRules(time)
+          } else if (disabledDate) {
+            // return true
+            return time.getTime() < new Date() - 8.64e7
+          } else if (disabledToDay) {
+            return time.getTime() < new Date()
+          } else {
+            return false
+          }
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
 
 #### 6.6 date日期组件封装 - format日期格式
 

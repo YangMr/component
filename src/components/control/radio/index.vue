@@ -1,15 +1,15 @@
 <template>
   <div>
-    <el-select v-model="val" @change="handleChangeEvent" >
-      <el-option  v-for="item in options" :key="item[props.value]" :label="item[props.label]" :value="item[props.value]"></el-option>
-    </el-select>
+    <el-radio-group v-model="val" @change="handleChangeEvent">
+      <el-radio v-for="item in options" :key="item[props.value]" :label="item[props.value]">{{item[props.label]}}</el-radio>
+    </el-radio-group>
   </div>
 </template>
 
 <script>
 import { props, mixin } from '../basis'
 export default {
-  name: 'SelectComponent',
+  name: 'RadioComponent',
   mixins: [mixin],
   props: {
     ...props
