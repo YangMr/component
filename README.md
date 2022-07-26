@@ -8484,33 +8484,1550 @@ export default {
 
 ### 八、 switch开关组件
 
+![image-20220726095622090](README.assets/image-20220726095622090.png)
+
 #### 8.1 switch开关组件 - switch初始化样式
 
-#### 8.1 switch开关组件 - 选中状态过滤动画
+`Form.vue`
 
-#### 8.1 switch开关组件 - 配置打开和关闭状态的值
+```javascript
+{
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status'
+        },
+```
 
-#### 8.1 switch开关组件 - 单击事件回调
+`control/switch/index.vue`
 
-#### 8.1 switch开关组件 - 异步方法、更新动画
+```vue
+<template>
+  <div class="yang-switch">
+    <i></i>
+  </div>
+</template>
 
-#### 8.1 switch开关组件 - switch组件封装
+<script>
+export default {
+  name: 'index'
+}
+</script>
+
+<style lang="scss" scoped>
+.yang-switch{
+  width: 64px;
+  padding: 2px;
+  border-radius: 100px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  >i{
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 100px;
+    background-color: #fff;
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.05);
+  }
+}
+</style>
+
+```
+
+
+
+#### 8.2 switch开关组件 - 选中状态过滤动画
+
+`control/switch/index.vue`
+
+```vue
+<template>
+  <div class="yang-switch " :class="{'yang-switch-active' : active}">
+    <i></i>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SwitchComponent',
+  data () {
+    return {
+      active: false
+    }
+  },
+  mounted () {
+    setTimeout(() => {
+      this.active = true
+    }, 2000)
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+$primary : #409eff !default;
+.yang-switch{
+  width: 64px;
+  padding: 2px;
+  border-radius: 100px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.4s ease 0s;
+  >i{
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 100px;
+    background-color: #fff;
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.05);
+    transition: all 0.4s ease 0s;
+  }
+}
+.yang-switch-active{
+  background-color: $primary;
+  >i{
+    margin-left: 36px;
+  }
+}
+</style>
+
+```
+
+
+
+#### 8.3 switch开关组件 - 配置打开和关闭状态的值
+
+`Form.vue`
+
+```javascript
+{
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0
+        },
+        
+ formField: {
+        phone: '17802901987',
+        password: '',
+        age: '',
+        email: '',
+        food: [1, 4],
+        car: 1,
+        createDate: '',
+        status: 1
+      }
+```
+
+`control/switch/index.vue`
+
+```vue
+<template>
+  <div class="yang-switch " :class="{'yang-switch-active' : active}">
+    <i></i>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'SwitchComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  data () {
+    return {
+      // 打开
+      activeValue: true,
+      // 关闭
+      inactiveValue: false,
+      // 定义类型
+      initDefaultValueType: ['boolean', 'string', 'number']
+    }
+  },
+  computed: {
+    active () {
+      return this.value === this.activeValue
+    }
+  },
+  watch: {
+    'config.activeValue': {
+      handler (newValue) {
+        const bool = this.initDefaultValueType.includes(typeof newValue)
+        // const bool = ['boolean', 'string', 'number'].includes(typeof newValue)
+        bool && (this.activeValue = newValue)
+      },
+      immediate: true,
+      deep: true
+    },
+    'config.inactiveValue': {
+      handler (newValue) {
+        const bool = this.initDefaultValueType.includes(typeof newValue)
+        // const bool = ['boolean', 'string', 'number'].includes(typeof newValue)
+        bool && (this.inactiveValue = newValue)
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  mounted () {
+    // setTimeout(() => {
+    //   this.active = true
+    // }, 2000)
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+$primary : #409eff !default;
+.yang-switch{
+  width: 64px;
+  padding: 2px;
+  border-radius: 100px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.4s ease 0s;
+  >i{
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 100px;
+    background-color: #fff;
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.05);
+    transition: all 0.4s ease 0s;
+  }
+}
+.yang-switch-active{
+  background-color: $primary;
+  >i{
+    margin-left: 36px;
+  }
+}
+</style>
+
+```
+
+
+
+#### 8.4 switch开关组件 - 单击事件回调
+
+`Form.vue`
+
+```javascript
+{
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0,
+          beforeChange: () => {
+
+          }
+        },
+```
+
+`control/switch/index.vue`
+
+```vue
+<template>
+  <div class="yang-switch " :class="{'yang-switch-active' : active}" @click="handleSwitch">
+    <i></i>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'SwitchComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  data () {
+    return {
+      // 打开
+      activeValue: true,
+      // 关闭
+      inactiveValue: false,
+      // 定义类型
+      initDefaultValueType: ['boolean', 'string', 'number']
+    }
+  },
+  computed: {
+    active () {
+      return this.value === this.activeValue
+    }
+  },
+  watch: {
+    'config.activeValue': {
+      handler (newValue) {
+        const bool = this.initDefaultValueType.includes(typeof newValue)
+        // const bool = ['boolean', 'string', 'number'].includes(typeof newValue)
+        bool && (this.activeValue = newValue)
+      },
+      immediate: true,
+      deep: true
+    },
+    'config.inactiveValue': {
+      handler (newValue) {
+        const bool = this.initDefaultValueType.includes(typeof newValue)
+        // const bool = ['boolean', 'string', 'number'].includes(typeof newValue)
+        bool && (this.inactiveValue = newValue)
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  methods: {
+    handleSwitch () {
+      const beforeChange = this.config.beforeChange
+      if (beforeChange && Object.prototype.toString.call(beforeChange) === '[object Function]') {
+        beforeChange(this.active).then(response => {
+          console.log(response)
+        }).catch(error => {
+          console.log(error)
+        })
+
+        return false
+      }
+      const value = this.value === this.activeValue ? this.inactiveValue : this.activeValue
+      this.$emit('update:value', value)
+    }
+  },
+  mounted () {
+    // setTimeout(() => {
+    //   this.active = true
+    // }, 2000)
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+$primary : #409eff !default;
+.yang-switch{
+  width: 64px;
+  padding: 2px;
+  border-radius: 100px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.4s ease 0s;
+  >i{
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 100px;
+    background-color: #fff;
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.05);
+    transition: all 0.4s ease 0s;
+  }
+}
+.yang-switch-active{
+  background-color: $primary;
+  >i{
+    margin-left: 36px;
+  }
+}
+</style>
+
+```
+
+
+
+#### 8.5 switch开关组件 - 异步方法
+
+`Form.vue`
+
+```javascript
+{
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0,
+          beforeChange: () => {
+            return this.handleSwitchApi()
+          }
+        },
+handleSwitchApi () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve()
+        }, 2000)
+      })
+    }
+```
+
+`control/switch/index.vue`
+
+```javascript
+ methods: {
+    handleSwitch () {
+      const value = this.value === this.activeValue ? this.inactiveValue : this.activeValue
+      const beforeChange = this.config.beforeChange
+      if (beforeChange && Object.prototype.toString.call(beforeChange) === '[object Function]') {
+        beforeChange(this.active).then(response => {
+          this.$emit('update:value', value)
+        }).catch(error => {
+          console.log(error)
+        })
+        return false
+      }
+      this.$emit('update:value', value)
+    }
+  },
+```
+
+
+
+#### 
 
 
 
 ### 九、code验证码组件
 
+![image-20220726095613101](README.assets/image-20220726095613101.png)
+
 #### 9.1 code验证码组件封装  - 验证码初始化样式
+
+`Form.vue`
+
+```javascript
+{
+          label: '验证码',
+          type: 'input',
+          valueType: 'sendcode',
+          prop: 'code',
+          required: true
+        },
+```
+
+`control/input/index.vue`
+
+```vue
+<template>
+  <div class="relative">
+    <el-input v-model="val" @input="handleInputEvent"></el-input>
+    <div class="code-button">
+      <yang-button size="mini" type="primary">获取验证码</yang-button>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'InputComponent',
+  components: {
+    yangButton: () => import('../../button/index.vue')
+  },
+  props: {
+    value: {
+      type: [String, Number],
+      default: ''
+    }
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        console.log(newValue)
+        this.val = newValue
+      },
+      immediate: true
+    }
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+    handleInputEvent () {
+      this.$emit('update:value', this.val)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.relative{
+  position: relative;
+}
+.code-button{
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+</style>
+
+```
+
+
 
 #### 9.2 code验证码组件封装  - 账号输入组件
 
+`Form.vue`
+
+```vue
+<template>
+  <div>
+    <yang-form :item="formItem" :field="formField" :button="formButton" :before-submit="handleBeforeSubmit"></yang-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Form',
+  data () {
+    return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
+      formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true
+        },
+        {
+          label: '验证码',
+          type: 'input',
+          sendAccount: '',
+          valueType: 'sendcode',
+          prop: 'code',
+          required: true
+        },
+        {
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0
+          // beforeChange: () => {
+          //   return this.handleSwitchApi()
+          // }
+        },
+        {
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          rangeSeparator: '至',
+          placeholder: '请选择您的生日',
+          disabledDateRules: (time) => {
+            return time.getTime() > new Date() - 86400000 * 1
+          },
+          format: 'yyyy-MM',
+          valueFormat: 'yyyy-MM-dd HH:mm:ss',
+          // disabledDate: true,
+          // disabledToDay: true,
+          startPlaceholder: '请选择开始创建的日期',
+          endPlaceholder: '请选择结束创建的日期',
+          prop: 'createDate',
+          required: true
+        },
+        {
+          label: '交通工具',
+          type: 'radio',
+          prop: 'car',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '火车',
+              b: 1
+            },
+            {
+              a: '高铁',
+              b: 2
+            },
+            {
+              a: '飞机',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '苹果',
+              b: 1
+            },
+            {
+              a: '西瓜',
+              b: 2
+            },
+            {
+              a: '芒果',
+              b: 3
+            },
+            {
+              a: '哈密瓜',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          // required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          // initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
+        }
+      ],
+      formField: {
+        phone: '',
+        password: '',
+        age: '',
+        email: '',
+        food: [1, 4],
+        car: 1,
+        createDate: '',
+        status: 1
+      }
+    }
+  },
+  watch: {
+    'formField.phone': {
+      handler: function (val, oldVal) {
+        console.log(val)
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  components: {
+    yangForm: () => import('../components/form/index')
+  },
+  methods: {
+    handleBeforeSubmit () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          console.log(this.formField)
+          resolve()
+          // eslint-disable-next-line prefer-promise-reject-errors
+          // reject()
+        }, 2000)
+      })
+    },
+    handleSwitchApi () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve()
+        }, 2000)
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`control/input/index.vue`
+
+```vue
+<template>
+  <div class="relative">
+    <el-input v-model="val" @input="handleChangeEvent"></el-input>
+    <div class="code-button" v-if="config.valueType === 'sendcode'">
+      <yang-button size="mini" type="primary" @click="getSms">获取验证码</yang-button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'InputComponent',
+  mixins: [mixin],
+  components: {
+    yangButton: () => import('../../button/index.vue')
+  },
+  props: {
+    ...props
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        console.log(newValue)
+        this.val = newValue
+      },
+      immediate: true
+    }
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+    getSms () {
+      if (!this.config.sendAccount) {
+        this.$message.error('请先设置发送的手机号')
+        return false
+      }
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.relative{
+  position: relative;
+}
+.code-button{
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+</style>
+
+```
+
+
+
 #### 9.3 code验证码组件封装  - 自定义回调函数更新账号
+
+`Form.vue`
+
+```vue
+<template>
+  <div>
+    <yang-form :item="formItem" :field="formField" :button="formButton" :before-submit="handleBeforeSubmit"></yang-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Form',
+  data () {
+    return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
+      formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true,
+          callback: () => {
+
+          }
+        },
+        {
+          label: '验证码',
+          type: 'input',
+          sendAccount: '',
+          valueType: 'sendcode',
+          prop: 'code',
+          required: true
+        },
+        {
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0
+          // beforeChange: () => {
+          //   return this.handleSwitchApi()
+          // }
+        },
+        {
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          rangeSeparator: '至',
+          placeholder: '请选择您的生日',
+          disabledDateRules: (time) => {
+            return time.getTime() > new Date() - 86400000 * 1
+          },
+          format: 'yyyy-MM',
+          valueFormat: 'yyyy-MM-dd HH:mm:ss',
+          // disabledDate: true,
+          // disabledToDay: true,
+          startPlaceholder: '请选择开始创建的日期',
+          endPlaceholder: '请选择结束创建的日期',
+          prop: 'createDate',
+          required: true
+        },
+        {
+          label: '交通工具',
+          type: 'radio',
+          prop: 'car',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '火车',
+              b: 1
+            },
+            {
+              a: '高铁',
+              b: 2
+            },
+            {
+              a: '飞机',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '苹果',
+              b: 1
+            },
+            {
+              a: '西瓜',
+              b: 2
+            },
+            {
+              a: '芒果',
+              b: 3
+            },
+            {
+              a: '哈密瓜',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          // required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          // initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
+        }
+      ],
+      formField: {
+        phone: '',
+        password: '',
+        age: '',
+        email: '',
+        food: [1, 4],
+        car: 1,
+        createDate: '',
+        status: 1
+      }
+    }
+  },
+  watch: {
+    'formField.phone': {
+      handler: function (val, oldVal) {
+        console.log(val)
+        this.formItem[1].sendAccount = val
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  components: {
+    yangForm: () => import('../components/form/index')
+  },
+  methods: {
+    handleBeforeSubmit () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          console.log(this.formField)
+          resolve()
+          // eslint-disable-next-line prefer-promise-reject-errors
+          // reject()
+        }, 2000)
+      })
+    },
+    handleSwitchApi () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve()
+        }, 2000)
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`control/input/index.vue`
+
+```vue
+<template>
+  <div class="relative">
+    <el-input v-model="val" @input="handleChangeEvent"></el-input>
+    <div class="code-button" v-if="config.valueType === 'sendcode'">
+      <yang-button size="mini" type="primary" @click="getSms">获取验证码</yang-button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'InputComponent',
+  mixins: [mixin],
+  components: {
+    yangButton: () => import('../../button/index.vue')
+  },
+  props: {
+    ...props
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        console.log(newValue)
+        this.val = newValue
+      },
+      immediate: true
+    }
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      this.$emit('update:value', value)
+      if (this.config.callback && Object.prototype.toString.call(this.config.callback) === '[object Function]') {
+        this.config.callback(value)
+      }
+    },
+    getSms () {
+      if (!this.config.sendAccount) {
+        this.$message.error('请先设置发送的手机号')
+        return false
+      }
+
+      console.log(this.config.sendAccount)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.relative{
+  position: relative;
+}
+.code-button{
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+</style>
+
+```
+
+
 
 #### 9.4 code验证码组件封装  - 自定义beforeChange属性
 
+`Form.vue`
+
+```vue
+<template>
+  <div>
+    <yang-form :item="formItem" :field="formField" :button="formButton" :before-submit="handleBeforeSubmit"></yang-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Form',
+  data () {
+    return {
+      formButton: [
+        { label: '提交', key: 'submit', type: 'primary' },
+        { label: '重置', key: 'cancel', type: 'danger' },
+        { label: '下一步', key: 'next', type: 'success' }
+      ],
+      formItem: [
+        {
+          label: '手机号',
+          type: 'input',
+          valueType: 'phone',
+          prop: 'phone',
+          required: true,
+          callback: () => {
+
+          }
+        },
+        {
+          label: '验证码',
+          type: 'input',
+          sendAccount: '',
+          valueType: 'sendcode',
+          prop: 'code',
+          required: true,
+          beforeChange: () => {
+            return this.getApiSms()
+          }
+        },
+        {
+          label: '滑动开关',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0
+          // beforeChange: () => {
+          //   return this.handleSwitchApi()
+          // }
+        },
+        {
+          label: '日期',
+          type: 'date',
+          model: 'datetimerange',
+          rangeSeparator: '至',
+          placeholder: '请选择您的生日',
+          disabledDateRules: (time) => {
+            return time.getTime() > new Date() - 86400000 * 1
+          },
+          format: 'yyyy-MM',
+          valueFormat: 'yyyy-MM-dd HH:mm:ss',
+          // disabledDate: true,
+          // disabledToDay: true,
+          startPlaceholder: '请选择开始创建的日期',
+          endPlaceholder: '请选择结束创建的日期',
+          prop: 'createDate',
+          required: true
+        },
+        {
+          label: '交通工具',
+          type: 'radio',
+          prop: 'car',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '火车',
+              b: 1
+            },
+            {
+              a: '高铁',
+              b: 2
+            },
+            {
+              a: '飞机',
+              b: 3
+            }
+          ]
+        },
+        {
+          label: '食物',
+          type: 'checkbox',
+          prop: 'food',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '苹果',
+              b: 1
+            },
+            {
+              a: '西瓜',
+              b: 2
+            },
+            {
+              a: '芒果',
+              b: 3
+            },
+            {
+              a: '哈密瓜',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室',
+          type: 'select',
+          prop: 'class_room',
+          required: true,
+          props: {
+            label: 'a',
+            value: 'b'
+          },
+          options: [
+            {
+              a: '一教',
+              b: 1
+            },
+            {
+              a: '二教',
+              b: 2
+            },
+            {
+              a: '三教',
+              b: 3
+            },
+            {
+              a: '四教',
+              b: 4
+            }
+          ]
+        },
+        {
+          label: '教室1',
+          type: 'select',
+          prop: 'class_room1',
+          // required: true,
+          props: {
+            label: 'class_name',
+            value: 'id'
+          },
+          // initRequest: true,
+          url: '/classroom/',
+          method: 'GET'
+        }
+      ],
+      formField: {
+        phone: '',
+        password: '',
+        age: '',
+        email: '',
+        food: [1, 4],
+        car: 1,
+        createDate: '',
+        status: 1
+      }
+    }
+  },
+  watch: {
+    'formField.phone': {
+      handler: function (val, oldVal) {
+        console.log(val)
+        this.formItem[1].sendAccount = val
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  components: {
+    yangForm: () => import('../components/form/index')
+  },
+  methods: {
+    handleBeforeSubmit () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          console.log(this.formField)
+          resolve()
+          // eslint-disable-next-line prefer-promise-reject-errors
+          // reject()
+        }, 2000)
+      })
+    },
+    handleSwitchApi () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve()
+        }, 2000)
+      })
+    },
+    getApiSms () {
+      return new Promise((resolve, reject) => {
+        this.$axios('/api/code').then(response => {
+          console.log(response)
+          // let data = response.data.data
+          // if (this.format && typeof this.format === 'function') {
+          //   data = this.format(response.data)
+          // }
+          // this.tableData = data
+        })
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+`control/input/index.vue`
+
+```vue
+<template>
+  <div class="relative">
+    <el-input v-model="val" @input="handleChangeEvent"></el-input>
+    <div class="code-button" v-if="config.valueType === 'sendcode'">
+      <yang-button size="mini" type="primary" @click="getSms">获取验证码</yang-button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'InputComponent',
+  mixins: [mixin],
+  components: {
+    yangButton: () => import('../../button/index.vue')
+  },
+  props: {
+    ...props
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        console.log(newValue)
+        this.val = newValue
+      },
+      immediate: true
+    }
+  },
+  data () {
+    return {
+      val: ''
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      this.$emit('update:value', value)
+      if (this.config.callback && Object.prototype.toString.call(this.config.callback) === '[object Function]') {
+        this.config.callback(value)
+      }
+    },
+    getSms () {
+      if (!this.config.sendAccount) {
+        this.$message.error('请先设置发送的手机号')
+        return false
+      }
+      if (this.config.beforeChange && Object.prototype.toString.call(this.config.beforeChange) === '[object Function]') {
+        this.config.beforeChange().then(response => {
+
+        }).catch(error => {
+          console.log(error)
+        })
+      }
+      console.log(this.config.sendAccount)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.relative{
+  position: relative;
+}
+.code-button{
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+</style>
+
+```
+
+
+
 #### 9.5 code验证码组件封装  - 倒计时效果1
 
+`control/input/index.vue`
+
+```vue
+<template>
+  <div class="relative">
+    <el-input v-model="val" @input="handleChangeEvent"></el-input>
+    <div class="code-button" v-if="config.valueType === 'sendcode'">
+      <yang-button size="mini" :disabled="disabled" :loading="loading" type="primary" @click="getSms">{{text}}</yang-button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'InputComponent',
+  mixins: [mixin],
+  components: {
+    yangButton: () => import('../../button/index.vue')
+  },
+  props: {
+    ...props
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        console.log(newValue)
+        this.val = newValue
+      },
+      immediate: true
+    }
+  },
+  data () {
+    return {
+      val: '',
+      text: '获取验证码',
+      loading: false,
+      disabled: false,
+      s: 60,
+      timer: null
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      this.$emit('update:value', value)
+      if (this.config.callback && Object.prototype.toString.call(this.config.callback) === '[object Function]') {
+        this.config.callback(value)
+      }
+    },
+    getSms () {
+      if (!this.config.sendAccount) {
+        this.$message.error('请先设置发送的手机号')
+        return false
+      }
+      if (this.config.beforeChange && Object.prototype.toString.call(this.config.beforeChange) === '[object Function]') {
+        this.text = '发送中'
+        this.loading = true
+        this.config.beforeChange().then(response => {
+          this.text = `倒计时${this.s}秒`
+          this.loading = false
+          this.disabled = true
+          this.countDown()
+        }).catch(error => {
+          console.log(error)
+        })
+      }
+      console.log(this.config.sendAccount)
+    },
+    countDown () {
+      this.timer = setInterval(() => {
+
+      }, 1000)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.relative{
+  position: relative;
+}
+.code-button{
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+</style>
+
+```
+
+
+
 #### 9.6 code验证码组件封装  - 倒计时效果2
+
+`control/input/index.vue`
+
+```vue
+<template>
+  <div class="relative">
+    <el-input v-model="val" @input="handleChangeEvent"></el-input>
+    <div class="code-button" v-if="config.valueType === 'sendcode'">
+      <yang-button size="mini" :disabled="disabled" :loading="loading" type="primary" @click="getSms">{{text}}</yang-button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'InputComponent',
+  mixins: [mixin],
+  components: {
+    yangButton: () => import('../../button/index.vue')
+  },
+  props: {
+    ...props
+  },
+  watch: {
+    value: {
+      handler (newValue) {
+        console.log(newValue)
+        this.val = newValue
+      },
+      immediate: true
+    }
+  },
+  data () {
+    return {
+      val: '',
+      text: '获取验证码',
+      loading: false,
+      disabled: false,
+      s: 3,
+      timer: null
+    }
+  },
+  methods: {
+    handleChangeEvent (value) {
+      this.$emit('update:value', value)
+      if (this.config.callback && Object.prototype.toString.call(this.config.callback) === '[object Function]') {
+        this.config.callback(value)
+      }
+    },
+    getSms () {
+      if (!this.config.sendAccount) {
+        this.$message.error('请先设置发送的手机号')
+        return false
+      }
+      if (this.config.beforeChange && Object.prototype.toString.call(this.config.beforeChange) === '[object Function]') {
+        this.text = '发送中'
+        this.loading = true
+        this.config.beforeChange().then(response => {
+          this.text = `倒计时${this.s}秒`
+          this.loading = false
+          this.disabled = true
+          this.countDown()
+        }).catch(error => {
+          this.text = '重新获取'
+          this.disabled = false
+          console.log(error)
+        })
+      }
+      console.log(this.config.sendAccount)
+    },
+    countDown () {
+      if (this.timer) {
+        clearInterval(this.timer)
+      }
+      this.timer = setInterval(() => {
+        this.s--
+        if (this.s === 0) {
+          this.text = '重新获取'
+          this.disabled = false
+          this.s = 60
+          clearInterval(this.timer)
+          this.timer = null
+        } else {
+          this.text = `倒计时${this.s}秒`
+        }
+      }, 1000)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.relative{
+  position: relative;
+}
+.code-button{
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+</style>
+
+```
 
 
 

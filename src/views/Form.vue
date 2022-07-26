@@ -20,7 +20,32 @@ export default {
           type: 'input',
           valueType: 'phone',
           prop: 'phone',
-          required: true
+          required: true,
+          callback: (val) => {
+            this.formItem[1].sendAccont = val
+          }
+        },
+        {
+          label: '验证码',
+          type: 'input',
+          prop: 'code',
+          sendAccont: '',
+          valueType: 'sendcode',
+          required: true,
+          beforeChange: () => {
+            return this.getSmsApi()
+          }
+        },
+        {
+          label: '状态',
+          type: 'switch',
+          prop: 'status',
+          activeValue: 1,
+          inactiveValue: 0,
+          required: true,
+          beforeChange: () => {
+            return this.handleChangeStatus()
+          }
         },
         {
           label: '日期',
@@ -135,19 +160,28 @@ export default {
         }
       ],
       formField: {
-        phone: '17802901987',
+        phone: '',
         password: '',
         age: '',
         email: '',
         food: [1, 4],
         car: 1,
-        createDate: ''
+        createDate: '',
+        status: 0
       }
     }
   },
   components: {
     yangForm: () => import('../components/form/index')
   },
+  // watch: {
+  //   'formField.phone': {
+  //     handler: function (val) {
+  //       this.formItem[1].sendAccont = val
+  //     },
+  //     deep: true
+  //   }
+  // },
   methods: {
     handleBeforeSubmit () {
       return new Promise((resolve, reject) => {
@@ -156,6 +190,20 @@ export default {
           resolve()
           // eslint-disable-next-line prefer-promise-reject-errors
           // reject()
+        }, 2000)
+      })
+    },
+    handleChangeStatus () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 1000)
+      })
+    },
+    getSmsApi () {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(true)
         }, 2000)
       })
     }
