@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-table
+      border
       :data="tableData"
       style="width: 100%"
       @selection-change="handleSelectionChange"

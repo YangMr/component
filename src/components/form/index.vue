@@ -1,7 +1,7 @@
 <template>
-    <el-form ref="form" :model="field"  label-width="80px">
+    <el-form ref="form" :inline="inline" :model="field"  label-width="80px">
       <template  v-for="item in formItem" >
-        <el-form-item :rules="item.rules" :key="item.label" :label="item.label" :prop="item.prop">
+        <el-form-item :size="item.size" :rules="item.rules" :key="item.label" :label="item.label" :prop="item.prop">
           <component :value.sync="field[item.prop]" :config="item" :is="!item.type ? 'com-text' : `com-${item.type}`"></component>
         </el-form-item>
       </template>
@@ -20,13 +20,13 @@ files.keys().forEach(item => {
   const name = key[1]
   modules[`com-${name}`] = files(item).default
 })
-console.log(modules)
 export default {
   name: 'yangForm',
   components: {
     ...modules
   },
   props: {
+    inline: Boolean,
     item: {
       type: Array,
       default: () => ([])
@@ -64,6 +64,7 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           this.$set(item, 'loading', true)
+          console.log(typeof this.beforeSubmit)
           if (typeof this.beforeSubmit === 'function') {
             console.log('123')
             this.beforeSubmit().then(response => {
@@ -90,6 +91,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+::v-deep .el-form-item__content{
+  line-height : 0;
+}
 </style>

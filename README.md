@@ -8462,23 +8462,1173 @@ export default {
 
 #### 7.1 upload上传组件 - upload初始化
 
+`Form.vue`
+
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file'
+},
+
+formField: {
+        phone: '',
+        password: '',
+        age: '',
+        email: '',
+        food: [1, 4],
+        car: 1,
+        createDate: '',
+        status: 0,
+        file: ''
+      }
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-upload
+      class="avatar-uploader"
+      action="https://jsonplaceholder.typicode.com/posts/"
+      :show-file-list="false">
+        <el-button size="small" type="primary">点击上传</el-button>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+
+    }
+  },
+  computed: {
+
+  },
+  methods: {
+
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
 #### 7.2 upload上传组件 - 元素类型
+
+`Form.vue`
+
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file',
+          // model : 'button'
+          model: 'card'
+        },
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-upload
+      class="avatar-uploader"
+      action="https://jsonplaceholder.typicode.com/posts/"
+      :show-file-list="false">
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <template v-if="model === 'card'">
+          <img v-if="imageUrl" :src="imageUrl" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </template>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    }
+  },
+  methods: {
+
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+::v-deep .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
+
+```
+
+
 
 #### 7.3 upload上传组件 - 自定义上传区域尺寸
 
-#### 7.4 upload上传组件 - 自定义接口上传文件1
+`Form.vue`
 
-#### 7.5 upload上传组件 - 自定义接口上传文件2
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file',
+          // model : 'button'
+          model: 'card',
+          width: '90px',
+          height: '120px'
+        },
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-upload
+      class="avatar-uploader"
+      action="https://jsonplaceholder.typicode.com/posts/"
+      :show-file-list="false">
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]">
+          <img v-if="imageUrl" :src="imageUrl" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: ''
+
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    }
+  },
+  methods: {
+
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+</style>
+
+```
+
+
+
+#### 7.4 upload上传组件 - 自定义接口上传文件
+
+`Form.vue`
+
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file',
+          // model : 'button'
+          model: 'card',
+          width: '90px',
+          height: '120px',
+          url: '/api/upload_single',
+          method: 'post'
+        },
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div>
+    <el-upload
+      class="avatar-uploader"
+      action="http"
+      :show-file-list="false"
+      :http-request="handleUpload"
+    >
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]">
+          <img v-if="imageUrl" :src="imageUrl" width="100%" height="100%">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: '',
+      imageUrl: ''
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    }
+  },
+  methods: {
+    handleUpload (data) {
+      const file = data.file
+      console.log('file=>', file)
+
+      const form = new FormData()
+      form.append('file', file)
+      form.append('filename', file.name)
+
+      const requestData = {
+        url: this.url,
+        method: this.method,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: form
+      }
+
+      this.$axios(requestData).then(response => {
+        console.log(response.data)
+        const servicePath = response.data.servicePath
+        this.imageUrl = servicePath
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+</style>
+
+```
+
+
 
 #### 7.6 upload上传组件 - 自定义删除
 
+`Form.vue`
+
+
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div class="upload-box">
+    <i class="el-icon-delete" v-if="imageUrl" @click="handleClear"></i>
+    <el-upload
+      class="avatar-uploader"
+      action="http"
+      :show-file-list="false"
+      :http-request="handleUpload"
+    >
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]">
+          <img v-if="imageUrl" :src="imageUrl" width="100%" height="100%">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: '',
+      imageUrl: ''
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    }
+  },
+  methods: {
+    handleUpload (data) {
+      const file = data.file
+      console.log('file=>', file)
+
+      const form = new FormData()
+      form.append('file', file)
+      form.append('filename', file.name)
+
+      const requestData = {
+        url: this.url,
+        method: this.method,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: form
+      }
+
+      this.$axios(requestData).then(response => {
+        console.log(response.data)
+        const servicePath = response.data.servicePath
+        this.imageUrl = servicePath
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    handleClear () {
+      this.imageUrl = ''
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+
+.upload-box{
+  display : inline-block;
+  position: relative;
+}
+.el-icon-delete{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  z-index:2;
+}
+</style>
+
+```
+
+
+
 #### 7.7 upload上传组件 - 限制上传数据、回调显示
+
+`Form.vue`
+
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file',
+          // model : 'button'
+          model: 'card',
+          width: '90px',
+          height: '120px',
+          url: '/api/upload_single',
+          method: 'post',
+          multiple: true,
+          limit: 3,
+          accept: '.jpg'
+        },
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div class="upload-box">
+    <i class="el-icon-delete" v-if="imageUrl" @click="handleClear"></i>
+    <el-upload
+      class="avatar-uploader"
+      action="http"
+      :show-file-list="false"
+      :http-request="handleUpload"
+      :accept="config.accept"
+      :multiple="config.multiple"
+      :limit="config.limit || 1"
+      :on-exceed="handleExceed"
+    >
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]">
+          <img v-if="imageUrl" :src="imageUrl" width="100%" height="100%">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: '',
+      imageUrl: ''
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    }
+  },
+  methods: {
+    handleUpload (data) {
+      const file = data.file
+      console.log('file=>', file)
+
+      const form = new FormData()
+      form.append('file', file)
+      form.append('filename', file.name)
+
+      const requestData = {
+        url: this.url,
+        method: this.method,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: form
+      }
+
+      this.$axios(requestData).then(response => {
+        console.log(response.data)
+        const servicePath = response.data.servicePath
+        this.imageUrl = servicePath
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    handleClear () {
+      this.imageUrl = ''
+    },
+    handleExceed () {
+      this.$message.warning(`最多只能上传${this.config.limit}个文件`)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+
+.upload-box{
+  display : inline-block;
+  position: relative;
+}
+.el-icon-delete{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  z-index:2;
+}
+
+</style>
+
+```
+
+
 
 #### 7.8 upload上传组件 - 限制上传文件的大小
 
+`Form.vue`
+
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file',
+          // model : 'button'
+          model: 'card',
+          width: '90px',
+          height: '120px',
+          url: '/api/upload_single',
+          method: 'post',
+          multiple: true,
+          limit: 3,
+          // accept: '.jpg'
+          maxSize: 2
+        },
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div class="upload-box">
+    <i class="el-icon-delete" v-if="imageUrl" @click="handleClear"></i>
+    <el-upload
+      class="avatar-uploader"
+      action="http"
+      :show-file-list="false"
+      :http-request="handleUpload"
+      :accept="config.accept"
+      :multiple="config.multiple"
+      :limit="config.limit || 1"
+      :on-exceed="handleExceed"
+      :before-upload="handleBeforeUpload"
+    >
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]">
+          <img v-if="imageUrl" :src="imageUrl" width="100%" height="100%">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: '',
+      imageUrl: ''
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    }
+  },
+  methods: {
+    handleUpload (data) {
+      const file = data.file
+      console.log('file=>', file)
+
+      const form = new FormData()
+      form.append('file', file)
+      form.append('filename', file.name)
+
+      const requestData = {
+        url: this.url,
+        method: this.method,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: form
+      }
+
+      this.$axios(requestData).then(response => {
+        console.log(response.data)
+        const servicePath = response.data.servicePath
+        this.imageUrl = servicePath
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    handleClear () {
+      this.imageUrl = ''
+    },
+    handleExceed () {
+      this.$message.warning(`最多只能上传${this.config.limit}个文件`)
+    },
+    handleBeforeUpload (file) {
+      console.log('---', file)
+      const isLt2M = file.size / 1024 / 1024 < this.config.maxSize || 2
+      if (!isLt2M) {
+        this.$message.error(`上传文件大小不能超过 ${this.config.maxSize || 2}MB!`)
+      }
+      return isLt2M
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+
+.upload-box{
+  display : inline-block;
+  position: relative;
+}
+.el-icon-delete{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  z-index:2;
+}
+
+</style>
+
+```
+
+
+
 #### 7.9 upload上传组件 - 删除动作回调
 
+`Form.vue`
+
+```javascript
+{
+          label: '文件',
+          type: 'upload',
+          prop: 'file',
+          // model : 'button'
+          model: 'card',
+          width: '90px',
+          height: '120px',
+          url: '/api/upload_single',
+          method: 'post',
+          multiple: true,
+          limit: 3,
+          // accept: '.jpg'
+          maxSize: 2,
+          showFile: true
+        },
+```
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div class="upload-box">
+
+    <el-upload
+      class="avatar-uploader"
+      action="http"
+      :show-file-list="config.showFile"
+      :http-request="handleUpload"
+      :accept="config.accept"
+      :multiple="config.multiple"
+      :limit="config.limit || 1"
+      :on-exceed="handleExceed"
+      :before-upload="handleBeforeUpload"
+      :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :before-remove="handleBeforeRemove"
+    >
+        <i class="el-icon-delete" v-if="imageUrl" @click.stop="handleClear"></i>
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]">
+          <img v-if="imageUrl" :src="imageUrl" width="100%" height="100%">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: '',
+      imageUrl: ''
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    }
+  },
+  methods: {
+    handleUpload (data) {
+      const file = data.file
+      console.log('file=>', file)
+
+      const form = new FormData()
+      form.append('file', file)
+      form.append('filename', file.name)
+
+      const requestData = {
+        url: this.url,
+        method: this.method,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: form
+      }
+
+      this.$axios(requestData).then(response => {
+        console.log(response.data)
+        const servicePath = response.data.servicePath
+        this.imageUrl = servicePath
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    handleClear () {
+      this.imageUrl = ''
+    },
+    handleExceed () {
+      this.$message.warning(`最多只能上传${this.config.limit}个文件`)
+    },
+    handleBeforeUpload (file) {
+      console.log('---', file)
+      const isLt2M = file.size / 1024 / 1024 < this.config.maxSize || 2
+      if (!isLt2M) {
+        this.$message.error(`上传文件大小不能超过 ${this.config.maxSize || 2}MB!`)
+      }
+      return isLt2M
+    },
+    handlePreview (file) {
+      console.log('111', file)
+    },
+    handleRemove () {
+      console.log('222')
+    },
+    handleBeforeRemove () {
+      return new Promise((resolve, reject) => {
+        this.$confirm('是否删除文件？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          resolve()
+        }).catch(() => {
+          reject()
+        })
+      })
+
+      // return false
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+
+.upload-box{
+  display : inline-block;
+  position: relative;
+}
+.el-icon-delete{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  z-index:2;
+}
+
+</style>
+
+```
+
+
+
 #### 7.10 upload上传组件 - upload上传组件封装
+
+`Form.vue`
+
+
+
+`control/upload/index.vue`
+
+```vue
+<template>
+  <div class="upload-box">
+
+    <el-upload
+      class="avatar-uploader"
+      action="http"
+      :show-file-list="config.showFile"
+      :http-request="handleUpload"
+      :accept="config.accept"
+      :multiple="config.multiple"
+      :limit="config.limit || 1"
+      :on-exceed="handleExceed"
+      :before-upload="handleBeforeUpload"
+      :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :before-remove="handleBeforeRemove"
+    >
+        <i class="el-icon-delete" v-if="imageUrl" @click.stop="handleClear"></i>
+        <el-button v-if="model === 'button'" size="small" type="primary">点击上传</el-button>
+
+        <div v-if="model === 'card'" class="upload-wrap" :style="[sizeStyle]" :class="{'is-round': isRound}">
+          <img v-if="imageUrl" :src="imageUrl" width="100%" height="100%">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </div>
+    </el-upload>
+  </div>
+</template>
+
+<script>
+import { props, mixin } from '../basis'
+export default {
+  name: 'DateComponent',
+  mixins: [mixin],
+  props: {
+    ...props
+  },
+  watch: {
+
+  },
+  data () {
+    return {
+      val: '',
+      imageUrl: ''
+    }
+  },
+  computed: {
+    model () {
+      return this.config?.model
+    },
+    sizeStyle () {
+      const width = this.config?.width || '100px'
+      const height = this.config?.height || '100px'
+      return {
+        width,
+        height
+      }
+    },
+    isRound () {
+      return this.config?.isRound || false
+    }
+  },
+  methods: {
+    handleUpload (data) {
+      const file = data.file
+      console.log('file=>', file)
+
+      const form = new FormData()
+      form.append('file', file)
+      form.append('filename', file.name)
+
+      const requestData = {
+        url: this.url,
+        method: this.method,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: form
+      }
+
+      this.$axios(requestData).then(response => {
+        console.log(response.data)
+        const servicePath = response.data.servicePath
+        this.imageUrl = servicePath
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    handleClear () {
+      this.imageUrl = ''
+    },
+    handleExceed () {
+      this.$message.warning(`最多只能上传${this.config.limit}个文件`)
+    },
+    handleBeforeUpload (file) {
+      console.log('---', file)
+      const isLt2M = file.size / 1024 / 1024 < this.config.maxSize || 2
+      if (!isLt2M) {
+        this.$message.error(`上传文件大小不能超过 ${this.config.maxSize || 2}MB!`)
+      }
+      return isLt2M
+    },
+    handlePreview (file) {
+      console.log('111', file)
+    },
+    handleRemove () {
+      console.log('222')
+    },
+    handleBeforeRemove () {
+      return new Promise((resolve, reject) => {
+        this.$confirm('是否删除文件？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          resolve()
+        }).catch(() => {
+          reject()
+        })
+      })
+
+      // return false
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.upload-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  //width: 100px;
+  //height: 100px;
+
+  &:hover{
+    border-color: #409EFF;
+  }
+}
+
+.upload-box{
+  display : inline-block;
+  position: relative;
+}
+.el-icon-delete{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  z-index:2;
+}
+.is-round{
+  border-radius: 50%;
+}
+
+</style>
+
+```
 
 
 

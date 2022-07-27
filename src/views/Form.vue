@@ -26,6 +26,23 @@ export default {
           }
         },
         {
+          label: '文件上传',
+          type: 'upload',
+          prop: 'file',
+          model: 'card',
+          width: '60px',
+          height: '60px',
+          clear: false,
+          url: '/api/upload_single',
+          method: 'POST',
+          multiple: true,
+          limit: 2,
+          maxSize: 1,
+          showFileList: false,
+          isRound: true
+          // accept: '.jpg,.png,.gif'
+        },
+        {
           label: '验证码',
           type: 'input',
           prop: 'code',
@@ -167,7 +184,8 @@ export default {
         food: [1, 4],
         car: 1,
         createDate: '',
-        status: 0
+        status: 0,
+        file: ''
       }
     }
   },

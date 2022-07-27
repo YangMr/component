@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <el-input v-model="val" @input="handleInputEvent"></el-input>
+    <el-input  v-model="val" @input="handleInputEvent"></el-input>
     <div class="code-button" v-if="config.valueType === 'sendcode'">
       <yang-button @click="getSms" :disabled="disabled" :loading="loading" type="primary" size="mini">{{text}}</yang-button>
     </div>
